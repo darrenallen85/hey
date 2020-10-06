@@ -55,6 +55,7 @@ func newTemplate(output string) *template.Template {
 
 var tmplFuncMap = template.FuncMap{
 	"formatNumber":    formatNumber,
+	"formatMs":        formatMs,
 	"formatNumberInt": formatNumberInt,
 	"histogram":       histogram,
 	"jsonify":         jsonify,
@@ -67,6 +68,10 @@ func jsonify(v interface{}) string {
 
 func formatNumber(duration float64) string {
 	return fmt.Sprintf("%4.4f", duration)
+}
+
+func formatMs(duration float64) string {
+	return fmt.Sprintf("%4.1f", duration*1000)
 }
 
 func formatNumberInt(duration int) string {
@@ -87,7 +92,8 @@ func histogram(buckets []Bucket) string {
 		if max > 0 {
 			barLen = (buckets[i].Count*40 + max/2) / max
 		}
-		res.WriteString(fmt.Sprintf("  %4.3f [%v]\t|%v\n", buckets[i].Mark, buckets[i].Count, strings.Repeat(barChar, barLen)))
+		// res.WriteString(fmt.Sprintf("  %4.4f [%v]\t|%v\n", buckets[i].Mark, buckets[i].Count, strings.Repeat(barChar, barLen)))
+		res.WriteString(fmt.Sprintf("  %4.1fms [%v]\t|%v\n", buckets[i].Mark*1000, buckets[i].Count, strings.Repeat(barChar, barLen)))
 	}
 	return res.String()
 }
@@ -108,7 +114,7 @@ Response time histogram:
 {{ histogram .Histogram }}
 
 Latency distribution:{{ range .LatencyDistribution }}
-  {{ .Percentage }}%% in {{ formatNumber .Latency }} secs{{ end }}
+  {{ .Percentage }}%% in {{ formatMs .Latency }} ms{{ end }}
 
 Details (average, fastest, slowest):
   DNS+dialup:	{{ formatNumber .AvgConn }} secs, {{ formatNumber .Fastest }} secs, {{ formatNumber .Slowest }} secs

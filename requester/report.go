@@ -215,12 +215,12 @@ func (r *report) snapshot() Report {
 }
 
 func (r *report) latencies() []LatencyDistribution {
-	pctls := []int{10, 25, 50, 75, 90, 95, 99}
+	pctls := []int{10, 25, 50, 75, 90, 95, 99, 100}
 	data := make([]float64, len(pctls))
 	j := 0
 	for i := 0; i < len(r.lats) && j < len(pctls); i++ {
-		current := i * 100 / len(r.lats)
-		if current >= pctls[j] {
+		current := float64((i+1)*100) / float64(len(r.lats))
+		if current >= float64(pctls[j]) {
 			data[j] = r.lats[i]
 			j++
 		}
@@ -235,7 +235,7 @@ func (r *report) latencies() []LatencyDistribution {
 }
 
 func (r *report) histogram() []Bucket {
-	bc := 10
+	bc := 9
 	buckets := make([]float64, bc+1)
 	counts := make([]int, bc+1)
 	bs := (r.slowest - r.fastest) / float64(bc)
